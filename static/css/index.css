@@ -1,0 +1,22 @@
+html,
+body{
+    height: 100%;
+}
+
+#sidenav{
+    width: 280px;
+    height: 100%;
+}
+
+#menu{
+    height: 80%;
+}
+
+#setting{
+    margin-bottom: 0;
+}
+
+.separation{
+    width: 240px;
+}
+
