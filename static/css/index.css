@@ -4,19 +4,33 @@ body{
 }
 
 #sidenav{
-    width: 280px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 20%;
     height: 100%;
 }
 
 #menu{
+    position: relative;
     height: 80%;
 }
 
 #setting{
     margin-bottom: 0;
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
 }
 
 .separation{
-    width: 240px;
+    width: 100%;
 }
 
+.iframe-wrapper{
+    width: 80%;
+    height: 100%;
+    position: fixed;
+    right: 0;
+    display: none;
+}

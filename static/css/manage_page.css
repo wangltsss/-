@@ -1,0 +1,10 @@
+html
+,body{
+    height: 100%;
+}
+
+.close-btn{
+    position: fixed;
+    top: 10px;
+    left: 10px;
+}
