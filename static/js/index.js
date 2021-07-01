@@ -22,10 +22,10 @@ function toggle_visibility(id){
 }
 
 const subpages =
-    ['commodity_wrapper',
-    'warehouse_wrapper',
+    ['commodity_wrapper', 'warehouse_wrapper',
     'purchase_wrapper', 'refund_wrapper',
-    'stock_wrapper', 'transfer_wrapper'];
+    'stock_wrapper', 'transfer_wrapper',
+    'setting_page'];
 
 
 
