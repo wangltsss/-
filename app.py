@@ -24,6 +24,41 @@ def index():
     return render_template("index.html")
 
 
+@app.route('/commodity_manage/', methods=["POST", "GET"])
+def commodity_manage():
+    return render_template("commodity_manage.html")
+
+
+@app.route('/warehouse_manage/', methods=["POST", "GET"])
+def warehouse_manage():
+    return render_template("warehouse_manage.html")
+
+
+@app.route('/purchasing_manage/', methods=["POST", "GET"])
+def purchasing_manage():
+    return render_template("purchasing_manage.html")
+
+
+@app.route('/refunding_manage/', methods=["POST", "GET"])
+def refunding_manage():
+    return render_template("refunding_manage.html")
+
+
+@app.route('/view_stock/', methods=["POST", "GET"])
+def view_stock():
+    return render_template("view_stock.html")
+
+
+@app.route('/stock_transfer/', methods=["POST", "GET"])
+def stock_transfer():
+    return render_template("stock_transfer.html")
+
+
+@app.route('/setting/', methods=["POST", "GET"])
+def setting_page():
+    return render_template("setting.html")
+
+
 @app.route('/logout/')
 def logout():
     del session['user_info']
