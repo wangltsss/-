@@ -1,22 +1,48 @@
-from flask import Flask, render_template, request, redirect, session
 import os
 
+from flask import Flask, render_template, request, redirect, session
+
+from Util.db_manager import DB_Manager
+
 app = Flask(__name__)
+
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.urandom(24)
 
 
 @app.route('/login/', methods=["POST", "GET"])
 def login():
+    db_handler = DB_Manager()
     if request.method == "GET":
         return render_template("signin.html")
     usr = request.form.get("usr")
     pwd = request.form.get("pwd")
-    if usr == "123@123.com" and pwd == "123":
-        session['user_info'] = usr
-        return redirect('/index')
+    if db_handler.if_in_db(usr, "Users", "Username"):
+        if db_handler.if_in_db_where(pwd, "Users", "Passwd", pair=["Username", usr]):
+            session['user_info'] = usr
+            db_handler.shut()
+            return redirect('/index')
+        else:
+            db_handler.shut()
+            return render_template('signin.html', msg='密码输入错误')
     else:
-        return render_template('signin.html', msg='用户名或密码输入错误')
+        db_handler.shut()
+        return render_template('signin.html', msg='用户名输入错误')
+
+
+@app.route('/signup/', methods=["POST", "GET"])
+def signup():
+    db_handler = DB_Manager()
+    if request.method == "GET":
+        return render_template("signup.html")
+    usr = request.form.get("usr")
+    pwd = request.form.get("pwd")
+    if db_handler.if_in_db(usr, "Users", "Username"):
+        db_handler.shut()
+        return render_template('signup.html', msg='用户名已存在')
+    db_handler.ins("Users", {"field": "Username", "value": usr}, {"field": "Passwd", "value": pwd})
+    return render_template('signin.html', msg='创建成功')
+
 
 
 @app.route('/index/', methods=["POST", "GET"])

@@ -1,0 +1,8 @@
+{
+  "dialect": "mysql",
+  "username": "root",
+  "passwd": "wltsns123456",
+  "ip": "127.0.0.1",
+  "port": "3306",
+  "db_name": "XiongTong"
+}
