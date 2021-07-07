@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
 
 from Util.db_manager import DB_Manager
 
@@ -43,7 +43,7 @@ def signup():
     db_handler.ins("Users", {"field": "Username", "value": usr}, {"field": "Passwd", "value": pwd})
     db_handler.commit()
     db_handler.shut()
-    return render_template('signin.html', msg='创建成功')
+    return redirect(url_for('login', msg="创建成功"))
 
 
 @app.route('/index/', methods=["POST", "GET"])
