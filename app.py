@@ -53,7 +53,28 @@ def index():
 
 @app.route('/commodity_manage/', methods=["POST", "GET"])
 def commodity_manage():
-    return render_template("commodity_manage.html")
+    db_handler = DB_Manager()
+    db_handler.que("Commodity", que_all=True)
+    res = db_handler.db_cursor.fetchall()
+    if request.method == "GET":
+        db_handler.shut()
+        return render_template("commodity_manage.html", commodity=res)
+    name = request.form.get("com_name")
+    com_id = request.form.get("com_id")
+    cate = request.form.get("com_cate")
+    spec = request.form.get("com_spec")
+    unit = request.form.get("com_unit")
+    desc = request.form.get("com_desc")
+    db_handler.ins("Commodity",
+                   {"field": "Name", "value": name},
+                   {"field": "Id", "value": com_id},
+                   {"field": "Description", "value": desc},
+                   {"field": "Specifications", "value": spec},
+                   {"field": "Unit", "value": unit},
+                   {"field": "Category", "value": cate})
+    db_handler.commit()
+    db_handler.shut()
+    return redirect(url_for("commodity_manage", commodity=res))
 
 
 @app.route('/warehouse_manage/', methods=["POST", "GET"])

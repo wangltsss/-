@@ -4,10 +4,90 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+        <link href="../static/css/management.css" rel="stylesheet">
         <title>商品管理</title>
     </head>
     <body>
-        <h1>商品管理</h1>
+        <div class="container-fluid">
+            <div id="search_bar">
+                <div class="row justify-content-evenly">
+                    <div class="col-4 form-floating">
+                        <input class="form-control text-black-50" id="floating_com_name">
+                        <label class="text-black-50" for="floating_com_name">商品名称...</label>
+                    </div>
+                    <div class="col-4 form-floating">
+                        <input class="form-control text-black-50" id="floating_com_code">
+                        <label class="text-black-50" for="floating_com_code">商品编码...</label>
+                    </div>
+                    <button class="btn-primary col-1">搜索</button>
+                    <button class="btn-primary col-1" data-bs-toggle="modal" data-bs-target="#insertion_modal">插入</button>
+                </div>
+            </div>
+            <div id="data_charts">
+                <table class="table-striped table">
+                    <tr>
+                        <th>商品编号</th>
+                        <th>商品名称</th>
+                        <th>商品类型</th>
+                        <th>单位</th>
+                        <th>规格</th>
+                        <th>描述</th>
+                    </tr>
+                    {% for item in commodity %}
+                    <tr>
+                        <td>{{ item[0] }}</td>
+                        <td>{{ item[1] }}</td>
+                        <td>{{ item[3] }}</td>
+                        <td>{{ item[4] }}</td>
+                        <td>{{ item[5] }}</td>
+                        <td>{{ item[2] }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <form method="post">
+                <div class="modal fade" id="insertion_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">新增商品</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="com_name" class="form-label">商品名称</label>
+                                <input type="text" class="form-control" id="com_name" placeholder="请输入商品名称..." name="com_name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="com_id" class="form-label">商品编号</label>
+                                <input type="text" class="form-control" id="com_id" placeholder="请输入商品编号..." name="com_id">
+                            </div>
+                            <div class="mb-3">
+                                <label for="com_id" class="form-label">商品类型</label>
+                                <input type="text" class="form-control" id="com_cate" placeholder="请输入商品类型..." name="com_cate">
+                            </div>
+                            <div class="mb-3">
+                                <label for="com_id" class="form-label">单位</label>
+                                <input type="text" class="form-control" id="com_unit" placeholder="请输入计量单位..." name="com_unit">
+                            </div>
+                            <div class="mb-3">
+                                <label for="com_id" class="form-label">规格</label>
+                                <input type="text" class="form-control" id="com_spec" placeholder="请输入商品规格..." name="com_spec">
+                            </div>
+                            <div class="mb-3">
+                                <label for="com_id" class="form-label">描述</label>
+                                <input type="text" class="form-control" id="com_desc" placeholder="请输入商品描述..." name="com_desc">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </form>
+        </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
     </body>
 </html>

@@ -88,8 +88,9 @@ class DB_Manager(DB_Parser):
 
 
 
-
-
-
+new = DB_Manager()
+new.que("Commodity", que_all=True)
+res = new.db_cursor.fetchall()
+print(res)
 
 
