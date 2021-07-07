@@ -17,6 +17,7 @@ class DB_Parser(object):
 
     def disconnect_db(self):
         if self.conn_flag:
+            self.db_cursor.close()
             self.conn.close()
         else:
             print("No connection to close!")

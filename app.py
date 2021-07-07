@@ -41,8 +41,9 @@ def signup():
         db_handler.shut()
         return render_template('signup.html', msg='用户名已存在')
     db_handler.ins("Users", {"field": "Username", "value": usr}, {"field": "Passwd", "value": pwd})
+    db_handler.commit()
+    db_handler.shut()
     return render_template('signin.html', msg='创建成功')
-
 
 
 @app.route('/index/', methods=["POST", "GET"])

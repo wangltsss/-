@@ -10,6 +10,9 @@ class DB_Manager(DB_Parser):
         self.connect_db(db_conf)
         self.create_cursor()
 
+    def commit(self):
+        self.conn.commit()
+
     def que(self, table, *cond, que_all=False):
         if que_all:
             self.execute("SELECT * FROM " + table)
@@ -67,7 +70,8 @@ class DB_Manager(DB_Parser):
             if record in i:
                 return True
             else:
-                return False
+                pass
+        return False
 
     def if_in_db_where(self, record, table, *column, pair, mode="LIKE"):
         if len(column):
@@ -79,8 +83,8 @@ class DB_Manager(DB_Parser):
             if record in i:
                 return True
             else:
-                return False
-
+                pass
+        return False
 
 
 
