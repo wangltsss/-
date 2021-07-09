@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, render_template, request, redirect, session, url_for
 
-from Util.db_manager import DB_Manager
+from Util.db_manager import DBManager
 
 app = Flask(__name__)
 
@@ -12,7 +12,7 @@ app.config['SECRET_KEY'] = os.urandom(24)
 
 @app.route('/login/', methods=["POST", "GET"])
 def login():
-    db_handler = DB_Manager()
+    db_handler = DBManager()
     if request.method == "GET":
         return render_template("signin.html")
     usr = request.form.get("usr")
@@ -32,7 +32,7 @@ def login():
 
 @app.route('/signup/', methods=["POST", "GET"])
 def signup():
-    db_handler = DB_Manager()
+    db_handler = DBManager()
     if request.method == "GET":
         return render_template("signup.html")
     usr = request.form.get("usr")
@@ -53,12 +53,18 @@ def index():
 
 @app.route('/commodity_manage/', methods=["POST", "GET"])
 def commodity_manage():
-    db_handler = DB_Manager()
+    db_handler = DBManager()
     db_handler.que("Commodity", que_all=True)
-    res = db_handler.db_cursor.fetchall()
+    res = db_handler.get_all()
     if request.method == "GET":
         db_handler.shut()
         return render_template("commodity_manage.html", commodity=res)
+    if request.form["com_name"] == "":
+        search_name = request.form["search_com_name"]
+        search_id = request.form["search_com_id"]
+        search_cate = request.form["search_com_cate"]
+
+    """
     name = request.form.get("com_name")
     com_id = request.form.get("com_id")
     cate = request.form.get("com_cate")
@@ -73,6 +79,7 @@ def commodity_manage():
                    {"field": "Unit", "value": unit},
                    {"field": "Category", "value": cate})
     db_handler.commit()
+    """
     db_handler.shut()
     return redirect(url_for("commodity_manage", commodity=res))
 

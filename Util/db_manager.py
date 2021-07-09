@@ -1,10 +1,10 @@
-from Util.db_parser import DB_Parser
+from Util.db_parser import DBParser
 
 
 db_conf = "conf/sql_conf.json"
 
 
-class DB_Manager(DB_Parser):
+class DBManager(DBParser):
 
     def __init__(self):
         self.connect_db(db_conf)
@@ -12,6 +12,15 @@ class DB_Manager(DB_Parser):
 
     def commit(self):
         self.conn.commit()
+
+    def get_all(self):
+        return self.db_cursor.fetchall()
+
+    def get_one(self):
+        return self.db_cursor.fetchone()
+
+    def get_many(self, size):
+        return self.db_cursor.fetchmany(size)
 
     def que(self, table, *cond, que_all=False):
         if que_all:
@@ -24,17 +33,27 @@ class DB_Manager(DB_Parser):
             res = res.rstrip(",")
             self.execute("SELECT " + res + " FROM " + table)
 
-    def where_affix_que(self, table, *cond, que_all=False, pair, mode="LIKE"):
+    def where_affix_que(self, table, *col, que_all=False, pair, mode="LIKE"):
         if que_all:
             self.execute("SELECT * FROM " + table + " WHERE {} {} {}".format(pair[0], mode, "'" + pair[1] + "'"))
         else:
             res = ''
-            for i in cond:
+            for i in col:
                 res += str(i[0]) + ", "
             res = res.rstrip()
             res = res.rstrip(",")
             self.execute(
                 "SELECT " + res + " FROM " + table + " WHERE {} {} {}".format(pair[0], mode, "'" + pair[1] + "'"))
+
+    def multi_where_que(self, table, col, que_all=False, mode="Like", *pair):
+        cond = ""
+        for i in pair:
+            cond += i[0] + mode + "'" + i[1] + "' AND"
+        cond = cond.strip("' AND")
+        if que_all:
+            self.execute("SELECT * FROM " + table + " WHERE {}".format(cond))
+        else:
+            self.execute("SELECT " + col + "  FROM " + table + " WHERE {}".format(cond))
 
     def ins(self, table, *pairs,):
         if len(pairs) == 0:
@@ -88,7 +107,7 @@ class DB_Manager(DB_Parser):
 
 
 
-new = DB_Manager()
+new = DBManager()
 new.que("Commodity", que_all=True)
 res = new.db_cursor.fetchall()
 print(res)

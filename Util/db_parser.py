@@ -3,7 +3,7 @@ import pymysql
 from Exceptions.db_exceptions import *
 
 
-class DB_Parser(object):
+class DBParser(object):
     json_parser = Parser()
     conn_flag = False
     conn = None
