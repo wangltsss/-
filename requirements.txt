@@ -15,3 +15,5 @@ PyNaCl==1.4.0
 six==1.16.0
 uWSGI==2.0.19.1
 Werkzeug==2.0.1
+
+PyMySQL~=1.0.2

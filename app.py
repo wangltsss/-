@@ -51,37 +51,71 @@ def index():
     return render_template("index.html")
 
 
+commodity_data = "First"    # a flag that signifies the page is being opened as a new page.
 @app.route('/commodity_manage/', methods=["POST", "GET"])
 def commodity_manage():
+
+    global commodity_data
+
     db_handler = DBManager()
-    db_handler.que("Commodity", que_all=True)
-    res = db_handler.get_all()
+
+    # load all records in database if this is a new page
+    if commodity_data == "First":
+        db_handler.que("Commodity", que_all=True)
+        commodity_data = db_handler.get_all()
+
+    # return the webpage if the request method is "Get"
     if request.method == "GET":
         db_handler.shut()
-        return render_template("commodity_manage.html", commodity=res)
-    if request.form["com_name"] == "":
-        search_name = request.form["search_com_name"]
-        search_id = request.form["search_com_id"]
-        search_cate = request.form["search_com_cate"]
+        return render_template("commodity_manage.html", commodity=commodity_data)
 
-    """
-    name = request.form.get("com_name")
-    com_id = request.form.get("com_id")
-    cate = request.form.get("com_cate")
-    spec = request.form.get("com_spec")
-    unit = request.form.get("com_unit")
-    desc = request.form.get("com_desc")
-    db_handler.ins("Commodity",
-                   {"field": "Name", "value": name},
-                   {"field": "Id", "value": com_id},
-                   {"field": "Description", "value": desc},
-                   {"field": "Specifications", "value": spec},
-                   {"field": "Unit", "value": unit},
-                   {"field": "Category", "value": cate})
-    db_handler.commit()
-    """
+    # get custom query conditions from search form
+    search_name = request.form.get("search_com_name")
+    search_id = request.form.get("search_com_id")
+    search_cate = request.form.get("search_com_cate")
+    if search_cate == "请选择商品类别...":
+        search_cate = ''
+
+    # query data from database with specified conditions
+    db_handler.multi_where_que(*("Commodity",
+                                 None,
+                                 "Like",
+                                 True,
+                                 ["Name", "%{}%".format(search_name)],
+                                 ["Id", "%{}%".format(search_id)],
+                                 ["Category", "%{}%".format(search_cate)]))
+    commodity_data = db_handler.get_all()
+
+    # if record insertion form has contents, then implement insertion
+    if request.form.get("com_name"):
+        name = request.form.get("com_name")
+        com_id = request.form.get("com_id")
+        cate = request.form.get("com_cate")
+        spec = request.form.get("com_spec")
+        unit = request.form.get("com_unit")
+        desc = request.form.get("com_desc")
+        db_handler.ins("Commodity",
+                       {"field": "Name", "value": name},
+                       {"field": "Id", "value": com_id},
+                       {"field": "Description", "value": desc},
+                       {"field": "Specifications", "value": spec},
+                       {"field": "Unit", "value": unit},
+                       {"field": "Category", "value": cate})
+        db_handler.commit()
+        db_handler.que("Commodity", que_all=True)
+        commodity_data = db_handler.get_all()
+
+    # if any checkbox is checked, then implement deletion
+    if request.form.getlist("s-record"):
+        record_ls = request.form.getlist("s-record")
+        db_handler.rmv_by_where("Commodity", "Id", record_ls)
+        db_handler.commit()
+        db_handler.que("Commodity", que_all=True)
+        commodity_data = db_handler.get_all()
+
+    # close connection to database
     db_handler.shut()
-    return redirect(url_for("commodity_manage", commodity=res))
+    return redirect(url_for("commodity_manage"))
 
 
 @app.route('/warehouse_manage/', methods=["POST", "GET"])

@@ -4,8 +4,20 @@ body{
     width: 100%;
 }
 
-.floating_button{
+.floating_plus{
     background-image: url("../img/plus_button.png");
+    background-size: 50px;
+    background-position: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    position: absolute;
+    right: 6%;
+    bottom: 2%;
+}
+
+.floating_minus{
+    background-image: url("../img/minus_button.png");
     background-size: 50px;
     background-position: center;
     width: 50px;

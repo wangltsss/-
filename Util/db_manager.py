@@ -45,15 +45,21 @@ class DBManager(DBParser):
             self.execute(
                 "SELECT " + res + " FROM " + table + " WHERE {} {} {}".format(pair[0], mode, "'" + pair[1] + "'"))
 
-    def multi_where_que(self, table, col, que_all=False, mode="Like", *pair):
+    def multi_where_que(self, table, col, mode="Like", que_all=False, *pair):
         cond = ""
         for i in pair:
-            cond += i[0] + mode + "'" + i[1] + "' AND"
-        cond = cond.strip("' AND")
-        if que_all:
-            self.execute("SELECT * FROM " + table + " WHERE {}".format(cond))
+            if i[1] is None or i[1] == '' or i[1] == '%None%':
+                pass
+            else:
+                cond += "{} {} '{}' AND ".format(i[0], mode, i[1])
+        cond = cond.rstrip(" AND ")
+        if cond == "":
+            self.que(table, que_all=que_all)
         else:
-            self.execute("SELECT " + col + "  FROM " + table + " WHERE {}".format(cond))
+            if que_all:
+                self.execute("SELECT * FROM " + table + " WHERE {}".format(cond))
+            else:
+                self.execute("SELECT " + col + "  FROM " + table + " WHERE {}".format(cond))
 
     def ins(self, table, *pairs,):
         if len(pairs) == 0:
@@ -70,8 +76,17 @@ class DBManager(DBParser):
         self.execute("INSERT INTO {} ({}) VALUES({})".format(table, fields, values))
         #new.ins("Users", {"field": "Username", "value": "12@12.com"}, {"field": "Passwd", "value": "12"})
 
-    def drop(self, table):
-        pass
+    def rmv_by_where(self, table, col, *cond):
+        clause = ""
+        for i in cond[0]:
+            if not i[0] or i[0] == '':
+                pass
+            else:
+                clause += "{}='{}' OR ".format(col, i[0])
+        clause = clause.rstrip(" OR ")
+        if clause == "":
+            return
+        self.execute("DELETE FROM {} WHERE {}".format(table, clause))
 
     def alt(self, table):
         pass
@@ -107,9 +122,6 @@ class DBManager(DBParser):
 
 
 
-new = DBManager()
-new.que("Commodity", que_all=True)
-res = new.db_cursor.fetchall()
-print(res)
+
 
 
