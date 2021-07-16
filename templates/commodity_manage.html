@@ -12,31 +12,31 @@
             <div id="search_bar">
                 <form method="post" id="search-form">
                     <div class="row row-cols-auto">
-                        <div class="col">商品名称:</div>
+                        <div class="col" style="padding-top: 3px">商品名称:</div>
                         <div class="col">
                             <input class="form-control-sm text-black-50 form-control" placeholder="请输入商品名称..." name="search_com_name" form="search-form">
                         </div>
-                        <div class="col">商品编号:</div>
+                        <div class="col" style="padding-top: 3px">商品编号:</div>
                         <div class="col">
                             <input class="form-control-sm text-black-50 form-control" placeholder="请输入商品编号..." name="search_com_id" form="search-form">
                         </div>
-                        <div class="col">商品类别:</div>
+                        <div class="col" style="padding-top: 3px">商品类别:</div>
                         <div class="col">
                             <select class="form-select form-select-sm" aria-label=".form-select-sm example" name="search_com_cate" form="search-form">
-                                <option selected>请选择商品类别...</option>
-                                <option value="cate1">cate1</option>
-                                <option value="cate2">cate2</option>
-                                <option value="cate3">cate3</option>
+                                <option selected disabled value="">请选择商品类别...</option>
+                                <option value="机械零件">机械零件</option>
+                                <option value="工具">工具</option>
+                                <option value="电子元件">电子元件</option>
                             </select>
                         </div>
-                        <button class="btn-dark col" onclick="submitForm('search-form')">搜索</button>
+                        <button class="btn-dark col btn btn-sm" onclick="submitForm('search-form')">搜索</button>
                     </div>
                 </form>
             </div>
 
-            <hr class="separation">
+        <hr class="separation">
 
-            <div>
+            <div class="table-responsive">
                 <table class="table-striped table table-hover">
                     <tr>
                         <th>商品编号</th>
@@ -45,22 +45,31 @@
                         <th>单位</th>
                         <th>规格</th>
                         <th>描述</th>
+                        <th>操作</th>
                     </tr>
                     {% for item in commodity %}
-                    <tr>
+                    <tr class="align-middle">
                         <td>{{ item[0] }}</td>
                         <td>{{ item[1] }}</td>
                         <td>{{ item[3] }}</td>
                         <td>{{ item[4] }}</td>
                         <td>{{ item[5] }}</td>
                         <td>{{ item[2] }}</td>
+                        <td>
+                            <div data-bs-toggle="modal" data-bs-target="#alt_modal">
+                                <button class="btn-outline-info btn btn-sm" type="button" onclick="setValues({{ item[0] }}, {{ item[1] }}, {{ item[3] }}, {{ item[4] }}, {{ item[5] }}, {{ item[2] }})">编辑</button>
+                            </div>
+                            <div data-bs-toggle="modal" data-bs-target="#stock_in_modal">
+                                <button class="btn-outline-info btn btn-sm" type="button">入库</button>
+                            </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </table>
             </div>
-            <form method="post">
+            <form method="post" class="needs-validation" novalidate>
                 <div class="modal fade" id="insertion_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-                    <div class="modal-dialog">
+                    <div class="modal-dialog modal-xl modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="exampleModalLabel">新增商品</h5>
@@ -69,32 +78,59 @@
                             <div class="modal-body">
                                 <div class="mb-3">
                                     <label for="com_name" class="form-label">商品名称</label>
-                                    <input type="text" class="form-control" id="com_name" placeholder="请输入商品名称..." name="com_name">
+                                    <input type="text" class="form-control" id="com_name" placeholder="请输入商品名称..." name="com_name" required>
+                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
+                                    <div class="invalid-feedback">这项必须填写哦>_<</div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="com_id" class="form-label">商品编号</label>
-                                    <input type="text" class="form-control" id="com_id" placeholder="请输入商品编号..." name="com_id">
+                                    <input type="text" class="form-control" id="com_id" value="{{ r_num }}" name="com_id">
+                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
+                                    <div class="invalid-feedback">这项必须填写哦>_<</div>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="com_cate" class="form-label">商品类型</label>
-                                    <input type="text" class="form-control" id="com_cate" placeholder="请输入商品类型..." name="com_cate">
+                                    <label for="com_cate" class="form-label">商品类别</label>
+                                    <select class="form-select" name="com_cate" id="com_cate" required>
+                                        <option selected disabled value="">请选择商品类别...</option>
+                                        <option value="机械零件">机械零件</option>
+                                        <option value="工具">工具</option>
+                                        <option value="电子元件">电子元件</option>
+                                    </select>
+                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
+                                    <div class="invalid-feedback">这项必须要选哦>_<</div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="com_unit" class="form-label">单位</label>
-                                    <input type="text" class="form-control" id="com_unit" placeholder="请输入计量单位..." name="com_unit">
+                                    <select class="form-select" name="com_unit" id="com_unit" required>
+                                        <option selected disabled value="">请选择单位...</option>
+                                        <option disabled value="">长度:</option>
+                                        <option value="m">米（m）</option>
+                                        <option value="cm">厘米（cm）</option>
+                                        <option value="mm">毫米（mm）</option>
+                                        <option disabled value="">电子:</option>
+                                        <option value="Ohm">电阻值（Ohm）</option>
+                                        <option value="V">电压（V）</option>
+                                        <option value="A">电流（A）</option>
+                                    </select>
+                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
+                                    <div class="invalid-feedback">这项必须要选哦>_<</div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="com_spec" class="form-label">规格</label>
-                                    <input type="text" class="form-control" id="com_spec" placeholder="请输入商品规格..." name="com_spec">
+                                    <input type="text" class="form-control" id="com_spec" placeholder="请输入商品规格..." name="com_spec" required>
+                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
+                                    <div class="invalid-feedback">这项必须填写哦>_<</div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="com_desc" class="form-label">描述</label>
-                                    <input type="text" class="form-control" id="com_desc" placeholder="请输入商品描述..." name="com_desc">
+                                    <input type="text" class="form-control" id="com_desc" placeholder="请输入商品描述..." name="com_desc" required>
+                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
+                                    <div class="invalid-feedback">这项必须填写哦>_<</div>
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                                <button type="submit" class="btn btn-primary">保存</button>
+                                <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
+                                <button type="submit" class="btn btn-outline-dark">保存</button>
                             </div>
                         </div>
                     </div>
@@ -136,6 +172,75 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                                 <button type="submit" class="btn btn-primary">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <form method="post" class="needs-validation" novalidate>
+                <div class="modal fade" id="alt_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">编辑商品</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="alt_com_name" class="form-label">商品名称</label>
+                                    <input type="text" class="form-control" id="alt_com_name" name="alt_com_name" required>
+                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
+                                    <div class="invalid-feedback">这项必须填写哦>_<</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="alt_com_id" class="form-label">商品编号</label>
+                                    <input type="text" class="form-control" id="alt_com_id" name="alt_com_id" disabled readonly>
+                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
+                                    <div class="invalid-feedback">这项必须填写哦>_<</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="alt_com_cate" class="form-label">商品类别</label>
+                                    <select class="form-select" name="alt_com_cate" id="alt_com_cate" required>
+                                        <option selected disabled value="">请选择商品类别...</option>
+                                        <option value="机械零件">机械零件</option>
+                                        <option value="工具">工具</option>
+                                        <option value="电子元件">电子元件</option>
+                                    </select>
+                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
+                                    <div class="invalid-feedback">这项必须要选哦>_<</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="alt_com_unit" class="form-label">单位</label>
+                                    <select class="form-select" name="alt_com_unit" id="alt_com_unit" required>
+                                        <option selected disabled value="">请选择单位...</option>
+                                        <option disabled value="">长度:</option>
+                                        <option value="m">米（m）</option>
+                                        <option value="cm">厘米（cm）</option>
+                                        <option value="mm">毫米（mm）</option>
+                                        <option disabled value="">电子:</option>
+                                        <option value="Ohm">电阻值（Ohm）</option>
+                                        <option value="V">电压（V）</option>
+                                        <option value="A">电流（A）</option>
+                                    </select>
+                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
+                                    <div class="invalid-feedback">这项必须要选哦>_<</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="alt_com_spec" class="form-label">规格</label>
+                                    <input type="text" class="form-control" id="alt_com_spec" name="alt_com_spec" required>
+                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
+                                    <div class="invalid-feedback">这项必须填写哦>_<</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="alt_com_desc" class="form-label">描述</label>
+                                    <input type="text" class="form-control" id="alt_com_desc" name="alt_com_desc" required>
+                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
+                                    <div class="invalid-feedback">这项必须填写哦>_<</div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
+                                <button type="submit" class="btn btn-outline-dark">保存</button>
                             </div>
                         </div>
                     </div>

@@ -78,7 +78,7 @@ class DBManager(DBParser):
 
     def rmv_by_where(self, table, col, *cond):
         clause = ""
-        for i in cond[0]:
+        for i in cond:
             if not i[0] or i[0] == '':
                 pass
             else:
@@ -120,6 +120,17 @@ class DBManager(DBParser):
                 pass
         return False
 
+    def records_num(self, table):
+        self.que(table, que_all=True)
+        return len(self.get_all())
+
+    def get_last_record(self, table, order_by):
+        self.execute("SELECT * FROM {} ORDER BY {} DESC LIMIT 1".format(table, order_by))
+        return self.get_all()
+
+    def get_first_record(self, table, order_by):
+        self.execute("SELECT * FROM {} ORDER BY {} ASC LIMIT 1".format(table, order_by))
+        return self.get_all()
 
 
 

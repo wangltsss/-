@@ -21,6 +21,8 @@ def login():
         if db_handler.if_in_db_where(pwd, "Users", "Passwd", pair=["Username", usr]):
             session['user_info'] = usr
             db_handler.shut()
+            global commodity_data
+            commodity_data = "First"
             return redirect('/index')
         else:
             db_handler.shut()
@@ -59,25 +61,27 @@ def commodity_manage():
 
     db_handler = DBManager()
 
+    table = "Commodity"
+
+    r_num = int(db_handler.get_last_record(table, "Id")[0][0])
+
     # load all records in database if this is a new page
     if commodity_data == "First":
-        db_handler.que("Commodity", que_all=True)
+        db_handler.que(table, que_all=True)
         commodity_data = db_handler.get_all()
 
     # return the webpage if the request method is "Get"
     if request.method == "GET":
         db_handler.shut()
-        return render_template("commodity_manage.html", commodity=commodity_data)
+        return render_template("commodity_manage.html", commodity=commodity_data, r_num=r_num+1)
 
     # get custom query conditions from search form
     search_name = request.form.get("search_com_name")
     search_id = request.form.get("search_com_id")
     search_cate = request.form.get("search_com_cate")
-    if search_cate == "请选择商品类别...":
-        search_cate = ''
 
     # query data from database with specified conditions
-    db_handler.multi_where_que(*("Commodity",
+    db_handler.multi_where_que(*(table,
                                  None,
                                  "Like",
                                  True,
@@ -89,12 +93,12 @@ def commodity_manage():
     # if record insertion form has contents, then implement insertion
     if request.form.get("com_name"):
         name = request.form.get("com_name")
-        com_id = request.form.get("com_id")
+        com_id = r_num + 1
         cate = request.form.get("com_cate")
         spec = request.form.get("com_spec")
         unit = request.form.get("com_unit")
         desc = request.form.get("com_desc")
-        db_handler.ins("Commodity",
+        db_handler.ins(table,
                        {"field": "Name", "value": name},
                        {"field": "Id", "value": com_id},
                        {"field": "Description", "value": desc},
@@ -102,15 +106,15 @@ def commodity_manage():
                        {"field": "Unit", "value": unit},
                        {"field": "Category", "value": cate})
         db_handler.commit()
-        db_handler.que("Commodity", que_all=True)
+        db_handler.que(table, que_all=True)
         commodity_data = db_handler.get_all()
 
     # if any checkbox is checked, then implement deletion
     if request.form.getlist("s-record"):
         record_ls = request.form.getlist("s-record")
-        db_handler.rmv_by_where("Commodity", "Id", record_ls)
+        db_handler.rmv_by_where(table, "Id", record_ls)
         db_handler.commit()
-        db_handler.que("Commodity", que_all=True)
+        db_handler.que(table, que_all=True)
         commodity_data = db_handler.get_all()
 
     # close connection to database
@@ -118,29 +122,19 @@ def commodity_manage():
     return redirect(url_for("commodity_manage"))
 
 
-@app.route('/warehouse_manage/', methods=["POST", "GET"])
-def warehouse_manage():
-    return render_template("warehouse_manage.html")
+@app.route('/stock_manage/', methods=["POST", "GET"])
+def stock_manage():
+    return render_template('stock_manage.html')
 
 
-@app.route('/purchasing_manage/', methods=["POST", "GET"])
-def purchasing_manage():
-    return render_template("purchasing_manage.html")
+@app.route('/view_stock_in/', methods=["POST", "GET"])
+def view_stock_in():
+    return render_template("view_stock_in.html")
 
 
-@app.route('/refunding_manage/', methods=["POST", "GET"])
-def refunding_manage():
-    return render_template("refunding_manage.html")
-
-
-@app.route('/view_stock/', methods=["POST", "GET"])
-def view_stock():
-    return render_template("view_stock.html")
-
-
-@app.route('/stock_transfer/', methods=["POST", "GET"])
-def stock_transfer():
-    return render_template("stock_transfer.html")
+@app.route('/view_stock_out/', methods=["POST", "GET"])
+def view_stock_out():
+    return render_template("view_stock_out.html")
 
 
 @app.route('/setting/', methods=["POST", "GET"])
