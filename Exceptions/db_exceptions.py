@@ -4,3 +4,7 @@ class AllConnDead(Exception):
 
 class InvalidInsertion(Exception):
     pass
+
+
+class DBNotLoaded(Exception):
+    pass

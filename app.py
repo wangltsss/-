@@ -1,151 +1,130 @@
 import os
 
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request
 
-from Util.db_manager import DBManager
+from Util.subpages import SignIn, SignUp, Index, CommodityManage, Logout, session_auth
+
+from Util.user import User
+
+from Exceptions import db_exceptions
 
 app = Flask(__name__)
 
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.urandom(24)
 
+db_mark = False
+com_db = ()
+
 
 @app.route('/login/', methods=["POST", "GET"])
 def login():
-    db_handler = DBManager()
+    manager = SignIn()
     if request.method == "GET":
-        return render_template("signin.html")
-    usr = request.form.get("usr")
-    pwd = request.form.get("pwd")
-    if db_handler.if_in_db(usr, "Users", "Username"):
-        if db_handler.if_in_db_where(pwd, "Users", "Passwd", pair=["Username", usr]):
-            session['user_info'] = usr
-            db_handler.shut()
-            global commodity_data
-            commodity_data = "First"
-            return redirect('/index')
-        else:
-            db_handler.shut()
-            return render_template('signin.html', msg='密码输入错误')
+        return manager.build_page()
+    new_session = User()
+    if new_session.correct_identity():
+        new_session.create_session()
+        global db_mark
+        global com_db
+        db_mark = True
+        com_db = ()
+        return manager.redirect()
     else:
-        db_handler.shut()
-        return render_template('signin.html', msg='用户名输入错误')
+        return manager.build_page(err=True)
 
 
 @app.route('/signup/', methods=["POST", "GET"])
 def signup():
-    db_handler = DBManager()
+    manager = SignUp()
     if request.method == "GET":
-        return render_template("signup.html")
-    usr = request.form.get("usr")
-    pwd = request.form.get("pwd")
-    if db_handler.if_in_db(usr, "Users", "Username"):
-        db_handler.shut()
-        return render_template('signup.html', msg='用户名已存在')
-    db_handler.ins("Users", {"field": "Username", "value": usr}, {"field": "Passwd", "value": pwd})
-    db_handler.commit()
-    db_handler.shut()
-    return redirect(url_for('login', msg="创建成功"))
+        return manager.build_page()
+    new_session = User()
+    if new_session.has_duplicate():
+        return manager.build_page(err=True)
+    else:
+        new_session.create_usr()
+        return manager.build_page(suc=True)
 
 
 @app.route('/index/', methods=["POST", "GET"])
+@session_auth
 def index():
-    return render_template("index.html")
+    manager = Index()
+    return manager.build_page()
 
 
-commodity_data = "First"    # a flag that signifies the page is being opened as a new page.
 @app.route('/commodity_manage/', methods=["POST", "GET"])
+@session_auth
 def commodity_manage():
+    global db_mark
 
-    global commodity_data
+    global com_db
 
-    db_handler = DBManager()
+    manager = CommodityManage()
 
-    table = "Commodity"
+    [com_db, db_mark] = manager.init_db(db_mark, com_db)
 
-    r_num = int(db_handler.get_last_record(table, "Id")[0][0])
+    if request.form.get("search_com_name") \
+            or request.form.get("search_com_id") \
+            or request.form.get("search_com_cate"):
+        manager.set_records(manager.search())
+        com_db = manager.search()
 
-    # load all records in database if this is a new page
-    if commodity_data == "First":
-        db_handler.que(table, que_all=True)
-        commodity_data = db_handler.get_all()
+    manager.set_records(com_db)
 
-    # return the webpage if the request method is "Get"
-    if request.method == "GET":
-        db_handler.shut()
-        return render_template("commodity_manage.html", commodity=commodity_data, r_num=r_num+1)
-
-    # get custom query conditions from search form
-    search_name = request.form.get("search_com_name")
-    search_id = request.form.get("search_com_id")
-    search_cate = request.form.get("search_com_cate")
-
-    # query data from database with specified conditions
-    db_handler.multi_where_que(*(table,
-                                 None,
-                                 "Like",
-                                 True,
-                                 ["Name", "%{}%".format(search_name)],
-                                 ["Id", "%{}%".format(search_id)],
-                                 ["Category", "%{}%".format(search_cate)]))
-    commodity_data = db_handler.get_all()
+    try:
+        if request.method == "GET":
+            return manager.build_page()
+    except Exception:
+        return manager.to_err()
 
     # if record insertion form has contents, then implement insertion
-    if request.form.get("com_name"):
-        name = request.form.get("com_name")
-        com_id = r_num + 1
-        cate = request.form.get("com_cate")
-        spec = request.form.get("com_spec")
-        unit = request.form.get("com_unit")
-        desc = request.form.get("com_desc")
-        db_handler.ins(table,
-                       {"field": "Name", "value": name},
-                       {"field": "Id", "value": com_id},
-                       {"field": "Description", "value": desc},
-                       {"field": "Specifications", "value": spec},
-                       {"field": "Unit", "value": unit},
-                       {"field": "Category", "value": cate})
-        db_handler.commit()
-        db_handler.que(table, que_all=True)
-        commodity_data = db_handler.get_all()
+    manager.insert()
 
     # if any checkbox is checked, then implement deletion
-    if request.form.getlist("s-record"):
-        record_ls = request.form.getlist("s-record")
-        db_handler.rmv_by_where(table, "Id", record_ls)
-        db_handler.commit()
-        db_handler.que(table, que_all=True)
-        commodity_data = db_handler.get_all()
+    manager.remove()
 
-    # close connection to database
-    db_handler.shut()
-    return redirect(url_for("commodity_manage"))
+    # if alter form has contents, then implement alter
+    manager.alter()
+
+    return manager.redirect()
 
 
 @app.route('/stock_manage/', methods=["POST", "GET"])
+@session_auth
 def stock_manage():
     return render_template('stock_manage.html')
 
 
 @app.route('/view_stock_in/', methods=["POST", "GET"])
+@session_auth
 def view_stock_in():
     return render_template("view_stock_in.html")
 
 
 @app.route('/view_stock_out/', methods=["POST", "GET"])
+@session_auth
 def view_stock_out():
     return render_template("view_stock_out.html")
 
 
 @app.route('/setting/', methods=["POST", "GET"])
+@session_auth
 def setting_page():
     return render_template("setting.html")
 
 
 @app.route('/logout/')
 def logout():
-    del session['user_info']
-    return redirect('/login')
+    manager = Logout()
+    manager.clear_session()
+    return manager.redirect()
+
+
+@app.route('/db-error/')
+def err_page():
+    return render_template("error_page.html")
 
 
 if __name__ == '__main__':

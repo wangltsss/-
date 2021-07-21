@@ -12,9 +12,11 @@
   <body class="text-center bg-dark text-white">
     <main class="form-signin">
       <form method="post">
-        <img alt="" class="mb-4" src="../static/img/logo.png">
+        <a href="{{ url_for('login') }}">
+            <img alt="" class="mb-4" src="../static/img/logo.png">
+        </a>
         <div class="form-floating">
-          <input type="email" class="form-control text-white" id="floatingInput" name="usr">
+          <input type="text" class="form-control text-white" id="floatingInput" name="usr">
           <label for="floatingInput" class="text-white">账号…</label>
         </div>
         <div class="form-floating">

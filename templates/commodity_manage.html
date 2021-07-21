@@ -14,22 +14,23 @@
                     <div class="row row-cols-auto">
                         <div class="col" style="padding-top: 3px">商品名称:</div>
                         <div class="col">
-                            <input class="form-control-sm text-black-50 form-control" placeholder="请输入商品名称..." name="search_com_name" form="search-form">
+                            <input class="form-control-sm text-black-50 form-control" onkeyup="disable_search()" placeholder="请输入商品名称..." name="search_com_name" form="search-form" id="search_com_name">
                         </div>
                         <div class="col" style="padding-top: 3px">商品编号:</div>
                         <div class="col">
-                            <input class="form-control-sm text-black-50 form-control" placeholder="请输入商品编号..." name="search_com_id" form="search-form">
+                            <input class="form-control-sm text-black-50 form-control" onkeyup="disable_search()" placeholder="请输入商品编号..." name="search_com_id" form="search-form" id="search_com_id">
                         </div>
                         <div class="col" style="padding-top: 3px">商品类别:</div>
                         <div class="col">
-                            <select class="form-select form-select-sm" aria-label=".form-select-sm example" name="search_com_cate" form="search-form">
+                            <select class="form-select form-select-sm" onmouseout="disable_search()" aria-label=".form-select-sm example" name="search_com_cate" form="search-form" id="search_com_cate">
                                 <option selected disabled value="">请选择商品类别...</option>
                                 <option value="机械零件">机械零件</option>
                                 <option value="工具">工具</option>
                                 <option value="电子元件">电子元件</option>
                             </select>
                         </div>
-                        <button class="btn-dark col btn btn-sm" onclick="submitForm('search-form')">搜索</button>
+                        <button class="btn-dark col btn btn-sm" onclick="submitForm('search-form')" id="search-form-submit" disabled>搜索</button>
+                        <button class="btn-dark col btn btn-sm" onclick="search_all()">显示全部</button>
                     </div>
                 </form>
             </div>
@@ -57,7 +58,7 @@
                         <td>{{ item[2] }}</td>
                         <td>
                             <div data-bs-toggle="modal" data-bs-target="#alt_modal">
-                                <button class="btn-outline-info btn btn-sm" type="button" onclick="setValues({{ item[0] }}, {{ item[1] }}, {{ item[3] }}, {{ item[4] }}, {{ item[5] }}, {{ item[2] }})">编辑</button>
+                                <button class="btn-outline-info btn btn-sm" type="button" onclick="setValues('{{ item[0] }}', '{{ item[1] }}', '{{ item[3] }}', '{{ item[4] }}', '{{ item[5] }}', '{{ item[2] }}')">编辑</button>
                             </div>
                             <div data-bs-toggle="modal" data-bs-target="#stock_in_modal">
                                 <button class="btn-outline-info btn btn-sm" type="button">入库</button>
@@ -84,7 +85,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="com_id" class="form-label">商品编号</label>
-                                    <input type="text" class="form-control" id="com_id" value="{{ r_num }}" name="com_id">
+                                    <input type="text" class="form-control" id="com_id" value="{{ r_num }}" name="com_id" readonly>
                                     <div class="valid-feedback">这个看起来没什么问题:)</div>
                                     <div class="invalid-feedback">这项必须填写哦>_<</div>
                                 </div>
@@ -194,9 +195,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="alt_com_id" class="form-label">商品编号</label>
-                                    <input type="text" class="form-control" id="alt_com_id" name="alt_com_id" disabled readonly>
-                                    <div class="valid-feedback">这个看起来没什么问题:)</div>
-                                    <div class="invalid-feedback">这项必须填写哦>_<</div>
+                                    <input type="text" class="form-control" id="alt_com_id" name="alt_com_id" readonly>
                                 </div>
                                 <div class="mb-3">
                                     <label for="alt_com_cate" class="form-label">商品类别</label>
@@ -241,6 +240,95 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
                                 <button type="submit" class="btn btn-outline-dark">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <form method="post">
+                <div class="modal fade" id="stock_in_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">商品入库</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <div class="input-group mb-3 input-group-sm">
+                                                <span class="input-group-text">商品编号</span>
+                                                <input type="text" class="form-control" id="stock_in_id" name="stock_in_id" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 offset-1">
+                                            <div class="input-group mb-3 input-group-sm">
+                                                <span class="input-group-text">商品名称</span>
+                                                <input type="text" class="form-control" id="stock_in_name" name="stock_in_name" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 offset-1">
+                                            <div class="input-group mb-3 input-group-sm">
+                                                <span class="input-group-text">商品类型</span>
+                                                <input type="text" class="form-control" id="stock_in_cate" name="stock_in_cate" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="input-group mb-3 input-group-sm">
+                                                <span class="input-group-text">单位</span>
+                                                <input type="text" class="form-control" id="stock_in_unit" name="stock_in_unit" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-7 offset-1">
+                                            <div class="input-group mb-3 input-group-sm">
+                                                <span class="input-group-text">商品规格</span>
+                                                <input type="text" class="form-control" id="stock_in_spec" name="stock_in_spec" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <div class="input-group input-group-sm mb-3">
+                                                <span class="input-group-text">库存数量</span>
+                                                <input class="form-control" type="text" value="{{ stock }}" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 offset-1">
+                                            <div class="input-group mb-3 input-group-sm">
+                                                <span class="input-group-text">
+                                                    <span style="color: red">*</span>
+                                                    入库数量
+                                                </span>
+                                                <input type="text" class="form-control" id="stock_in_unit" name="stock_in_unit">
+                                            </div>
+                                        </div>
+                                        <div class="col-4 offset-1">
+                                            <div class="input-group mb-3 input-group-sm">
+                                                <div class="input-group-text">
+                                                    <input class="form-check-input mt-0" type="checkbox" value="" onclick="switch_stock_alerts()">
+                                                </div>
+                                                <span class="input-group-text">
+                                                    <span style="color: red" id="stock_alerts_aster"></span>
+                                                    库存报警
+                                                </span>
+                                                <input type="text" class="form-control" id="stock_alerts" name="stock_alerts" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="input-group mb-3 input-group-sm">
+                                                <span class="input-group-text">备注</span>
+                                                <textarea class="form-control" id="stock_in_notes" name="stock_in_notes" style="height: 100px"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
+                                <button type="submit" class="btn btn-outline-dark">入库</button>
                             </div>
                         </div>
                     </div>

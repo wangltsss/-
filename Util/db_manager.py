@@ -10,19 +10,19 @@ class DBManager(DBParser):
         self.connect_db(db_conf)
         self.create_cursor()
 
-    def commit(self):
+    def _commit(self):
         self.conn.commit()
 
-    def get_all(self):
+    def _get_all(self):
         return self.db_cursor.fetchall()
 
-    def get_one(self):
+    def _get_one(self):
         return self.db_cursor.fetchone()
 
-    def get_many(self, size):
+    def _get_many(self, size):
         return self.db_cursor.fetchmany(size)
 
-    def que(self, table, *cond, que_all=False):
+    def _que(self, table, *cond, que_all=False):
         if que_all:
             self.execute("SELECT * FROM " + table)
         else:
@@ -33,7 +33,7 @@ class DBManager(DBParser):
             res = res.rstrip(",")
             self.execute("SELECT " + res + " FROM " + table)
 
-    def where_affix_que(self, table, *col, que_all=False, pair, mode="LIKE"):
+    def _where_affix_que(self, table, *col, que_all=False, pair, mode="LIKE"):
         if que_all:
             self.execute("SELECT * FROM " + table + " WHERE {} {} {}".format(pair[0], mode, "'" + pair[1] + "'"))
         else:
@@ -45,7 +45,7 @@ class DBManager(DBParser):
             self.execute(
                 "SELECT " + res + " FROM " + table + " WHERE {} {} {}".format(pair[0], mode, "'" + pair[1] + "'"))
 
-    def multi_where_que(self, table, col, mode="Like", que_all=False, *pair):
+    def _multi_where_que(self, table, col, mode="Like", que_all=False, *pair):
         cond = ""
         for i in pair:
             if i[1] is None or i[1] == '' or i[1] == '%None%':
@@ -54,14 +54,14 @@ class DBManager(DBParser):
                 cond += "{} {} '{}' AND ".format(i[0], mode, i[1])
         cond = cond.rstrip(" AND ")
         if cond == "":
-            self.que(table, que_all=que_all)
+            self._que(table, que_all=que_all)
         else:
             if que_all:
                 self.execute("SELECT * FROM " + table + " WHERE {}".format(cond))
             else:
                 self.execute("SELECT " + col + "  FROM " + table + " WHERE {}".format(cond))
 
-    def ins(self, table, *pairs,):
+    def _ins(self, table, *pairs):
         if len(pairs) == 0:
             return
         fields = ''
@@ -76,7 +76,7 @@ class DBManager(DBParser):
         self.execute("INSERT INTO {} ({}) VALUES({})".format(table, fields, values))
         #new.ins("Users", {"field": "Username", "value": "12@12.com"}, {"field": "Passwd", "value": "12"})
 
-    def rmv_by_where(self, table, col, *cond):
+    def _rmv_by_where(self, table, col, *cond):
         clause = ""
         for i in cond:
             if not i[0] or i[0] == '':
@@ -88,17 +88,23 @@ class DBManager(DBParser):
             return
         self.execute("DELETE FROM {} WHERE {}".format(table, clause))
 
-    def alt(self, table):
-        pass
+    def _alt(self, table, com_id, *pairs):
+        if len(pairs) == 0:
+            return
+        alt_items = ""
+        for i in pairs:
+            alt_items += "{}='{}', ".format(i["field"], i["value"])
+        alt_items = alt_items.rstrip(", ")
+        self.execute("UPDATE {} SET {} WHERE Id={}".format(table, alt_items, com_id))
 
     def shut(self):
         self.disconnect_db()
 
-    def if_in_db(self, record, table, *column):
+    def _if_in_db(self, record, table, *column):
         if len(column):
-            self.que(table, column)
+            self._que(table, column)
         else:
-            self.que(table, que_all=True)
+            self._que(table, que_all=True)
         res = self.db_cursor.fetchall()
         for i in res:
             if record in i:
@@ -107,11 +113,11 @@ class DBManager(DBParser):
                 pass
         return False
 
-    def if_in_db_where(self, record, table, *column, pair, mode="LIKE"):
+    def _if_in_db_where(self, record, table, *column, pair, mode="LIKE"):
         if len(column):
-            self.where_affix_que(table, column, pair=pair, mode=mode)
+            self._where_affix_que(table, column, pair=pair, mode=mode)
         else:
-            self.where_affix_que(table, que_all=True, pair=pair, mode=mode)
+            self._where_affix_que(table, que_all=True, pair=pair, mode=mode)
         res = self.db_cursor.fetchall()
         for i in res:
             if record in i:
@@ -120,17 +126,17 @@ class DBManager(DBParser):
                 pass
         return False
 
-    def records_num(self, table):
-        self.que(table, que_all=True)
-        return len(self.get_all())
+    def _records_num(self, table):
+        self._que(table, que_all=True)
+        return len(self._get_all())
 
-    def get_last_record(self, table, order_by):
+    def _get_last_record(self, table, order_by):
         self.execute("SELECT * FROM {} ORDER BY {} DESC LIMIT 1".format(table, order_by))
-        return self.get_all()
+        return self._get_all()
 
-    def get_first_record(self, table, order_by):
+    def _get_first_record(self, table, order_by):
         self.execute("SELECT * FROM {} ORDER BY {} ASC LIMIT 1".format(table, order_by))
-        return self.get_all()
+        return self._get_all()
 
 
 

@@ -25,27 +25,23 @@ function submitForm(id){
     document.getElementById(id).submit();
 }
 
-function setValues(id, name, desc, cate, unit, spec){
-    alert(id.toString())
-    alert(name.toString())
-    alert(unit.toString())
-    alert(cate.toString())
-    alert(spec.toString())
-    alert(desc.toString())
-    /*
-    let id = item[0]
-    let name = item[1]
-    let cate = item[3]
-    let unit = item[4]
-    let spec = item[5]
-    let desc = item[2]
+function setValues(id, name, cate, unit, spec, desc){
     document.getElementById("alt_com_id").value = id
     document.getElementById("alt_com_name").value = name
-    document.getElementById("alt_com_cate").value = cate
-    document.getElementById("alt_com_unit").value = unit
+    let cate_select = document.getElementById("alt_com_cate")
+    let unit_select = document.getElementById("alt_com_unit")
+    for (let i = 0; i < cate_select.length; i++){
+        if (cate_select[i].value === cate){
+            cate_select[i].selected = true
+        }
+    }
+    for (let i = 0; i < unit_select.length; i++){
+        if (unit_select[i].value === unit){
+            unit_select[i].selected = true
+        }
+    }
     document.getElementById("alt_com_spec").value = spec
     document.getElementById("alt_com_desc").value = desc
-    */
 }
 
 (function () {
@@ -64,11 +60,33 @@ function setValues(id, name, desc, cate, unit, spec){
         })
 })()
 
+function search_all(){
+    document.getElementById("search_com_cate").value = "ALL"
+    document.getElementById("search_com_id").value = "ALL"
+    document.getElementById("search_com_name").value = "ALL"
+    let form = document.getElementById("search-form")
+    form.submit()
+}
 
+function disable_search(){
 
+    document.getElementById("search-form-submit").disabled = !(document.getElementById("search_com_name").value ||
+        document.getElementById("search_com_id").value ||
+        document.getElementById("search_com_cate").value);
 
+}
 
-
+function switch_stock_alerts(){
+    document.getElementById("stock_alerts").disabled = !document.getElementById("stock_alerts").disabled
+    if (!document.getElementById("stock_alerts").disabled) {
+        document.getElementById("stock_alerts_aster").innerText = "*"
+        document.getElementById("stock_alerts").required = true
+    }
+    else {
+        document.getElementById("stock_alerts_aster").innerText = ""
+        document.getElementById("stock_alerts").required = false
+    }
+}
 
 
 
